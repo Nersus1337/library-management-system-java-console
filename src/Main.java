@@ -1,36 +1,27 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
 
 public class Main {
-	public static void main(String[] args)
+	public static void main(String[] args) {
 
-			throws IOException {
-		try {
-			Class.forName("org.sqlite.JDBC");
-			Connection co = DriverManager.getConnection("jdbc:sqlite:nersus.db");
-			System.out.println("Connected to database!");
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
+		Scanner in = new Scanner(System.in);
+		Connection con;// Соединение с базой данных
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Hello, this is system of library management\n");
 		List<Book> listBooks = new ArrayList<>();
-		while (true) {
 
+		while (true) {
 			System.out.println("1. View all books");
 			System.out.println("2. Add book");
 			System.out.println("3. Delete book");
 			System.out.println("4. View all tickets");
 			System.out.println("0. Exit");
 
-			String input = reader.readLine();
+			String action = in.nextLine();
 
-			if (input.equals("1")) {// Вывод всех книг
+			if (action.equals("1")) {// Вывод всех книг
 				if (listBooks.isEmpty()) {
 					System.out.println("Is empty!");
 				}
@@ -40,18 +31,28 @@ public class Main {
 					System.out.println("//////////////");
 				}
 			}
-			if (input.equals("2")) {// Добавление книги
+
+			if (action.equals("2")) {// Добавление книги
 				System.out.println("Enter title of the book:");
-				String titleBook = reader.readLine();
+				String titleBook = in.nextLine();
 				System.out.println("Enter author of the book:");
-				String authorBook = reader.readLine();
+				String authorBook = in.nextLine();
 				listBooks.add(new Book(titleBook, authorBook));
 				
-				String query = "INSERT INTO users (name, phone) "
-						+ "VALUES ('first var', 'second var')";
-				//Statement statement = co.createStatement();
+				//Добавление книги в базу данных
+				String query = "INSERT INTO Books (title, author) VALUES ('" + titleBook + "' , '" + authorBook + "')";
+				try {
+					Class.forName("org.sqlite.JDBC");
+					con = DriverManager.getConnection(
+							"jdbc:sqlite:C:\\Users\\User\\eclipse-workspace\\LibraryManageSystemConsole\\db\\nersus.db");
+					Statement statement = con.createStatement();
+					statement.executeUpdate(query);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			if (input.equals("3")) {// Удаление книги
+
+			if (action.equals("3")) {// Удаление книги
 				System.out.println("Enter number of the book for delete:");
 
 				if (listBooks.isEmpty()) {
@@ -62,15 +63,16 @@ public class Main {
 					System.out.println(book.getAuthor());
 					System.out.println("//////////////");
 				}
-
-				int removeIndex = Integer.parseInt(reader.readLine());
+				int removeIndex = Integer.parseInt(in.nextLine());
 				listBooks.remove(removeIndex);
 			}
 
-			if (input.equals("0")) {
+			if (action.equals("0")) {
 				break;
 			}
-			// System.out.println("\n\n\n\n");
+
 		}
+		System.out.print("\n////////////////////////");
+		System.out.print("\nProgram has been closed.");
 	}
 }
